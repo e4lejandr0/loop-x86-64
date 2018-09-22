@@ -16,23 +16,36 @@ end = 30
 _start:
     mov    $start, %r15   /* initialize loop counter */
 
-loop_init:
+loop:
+    xor    %rdx, %rdx  /* clear rdx */
+    mov    %r15, %rax  /* we'll divide the counter */
+    mov    $10, %r14   /* by 10 to split the digits */
+    div    %r14
+    add    $48, %rdx   /* add '0' to result and remainder */
+    add    $48, %rax
+    mov    %al, num_offset     /* put both digits inside the message */
+    mov    %dl, num_offset + 1
+
     movq    $len, %rdx    /* message length */
     movq    $msg, %rsi    /* message location */
     movq    $1, %rdi      /* file descriptor stdout */
     movq    $1, %rax      /* syscall sys_write */
+
+    
     syscall
+
     inc %r15
     cmp $end, %r15
-    jne loop_init
+    jne loop
 
     movq    $0, %rdi       /* exit status */
     movq    $60, %rax      /* syscall sys_exit */
     syscall
 
-.section .rodata
+.section .data
 
-msg:    .ascii      "Loop!\n"
+msg:    .ascii      "Loop:   \n"
     len = . - msg
+    num_offset = msg + 6
 
 
