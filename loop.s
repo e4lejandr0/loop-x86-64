@@ -12,6 +12,8 @@
 
 start = 0
 end = 30
+space = 20 /* ascii space */
+asc_zero = 48 /* ascii zero */
 
 _start:
     mov    $start, %r15   /* initialize loop counter */
@@ -21,11 +23,15 @@ loop:
     mov    %r15, %rax  /* we'll divide the counter */
     mov    $10, %r14   /* by 10 to split the digits */
     div    %r14
-    add    $48, %rdx   /* add '0' to result and remainder */
-    add    $48, %rax
-    mov    %al, num_offset     /* put both digits inside the message */
+    add    $asc_zero, %rdx   /* add '0' to result and remainder */
     mov    %dl, num_offset + 1
 
+    cmp    $0, %al
+    je     print_msg          /* skip the second digit */
+    add    $asc_zero, %rax
+    mov    %al, num_offset    /* put both digits inside the message */
+
+print_msg:
     movq    $len, %rdx    /* message length */
     movq    $msg, %rsi    /* message location */
     movq    $1, %rdi      /* file descriptor stdout */
